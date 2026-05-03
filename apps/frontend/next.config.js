@@ -9,12 +9,17 @@ const nextConfig = {
   },
   async rewrites() {
     // Only add the external API rewrite when NEXT_PUBLIC_API_URL is explicitly set
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    // Guard against CI systems exporting the literal string "undefined" or "null"
+    let apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl || apiUrl === "undefined" || apiUrl === "null") {
+      return [];
+    }
+
+    apiUrl = apiUrl.trim();
     if (
-      apiUrl &&
-      (apiUrl.startsWith("/") ||
-        apiUrl.startsWith("http://") ||
-        apiUrl.startsWith("https://"))
+      apiUrl.startsWith("/") ||
+      apiUrl.startsWith("http://") ||
+      apiUrl.startsWith("https://")
     ) {
       return [
         {
@@ -30,4 +35,5 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// Use CommonJS export for maximum compatibility in CI environments
+module.exports = nextConfig;
