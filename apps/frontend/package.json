@@ -11,7 +11,6 @@
     "clean": "rm -rf .next"
   },
   "dependencies": {
-    "@team-hub/shared": "*",
     "@tiptap/core": "^2.4.0",
     "@tiptap/extension-mention": "^2.4.0",
     "@tiptap/pm": "^2.4.0",
