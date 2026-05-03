@@ -36,7 +36,7 @@ export default function ThemeToggle() {
           <Sun className='w-5 h-5 text-yellow-500 animate-spin-slow' />
         ) : (
           /* Moon icon - Dark mode */
-          <Moon className='w-5 h-5 text-green-800 animate-pulse' />
+          <Moon className='w-5 h-5 text-gray-800 animate-pulse' />
         )}
       </button>
 
