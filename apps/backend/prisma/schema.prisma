@@ -1,0 +1,278 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Prisma Schema — Collaborative Team Hub
+// ─────────────────────────────────────────────────────────────────────────────
+// This file defines every table (model), relationship, and enum for the
+// PostgreSQL database. Run `npx prisma migrate dev` to apply changes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum WorkspaceRole {
+  ADMIN
+  MEMBER
+}
+
+enum GoalStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  AT_RISK
+  CANCELLED
+}
+
+enum ActionItemStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+}
+
+enum ActionItemPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum NotificationType {
+  MENTION
+  WORKSPACE_INVITE
+  GOAL_UPDATE
+  ACTION_ITEM_ASSIGNED
+  ANNOUNCEMENT
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+/// A registered user of the platform
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String
+  passwordHash  String
+  avatarUrl     String?
+  avatarPublicId String? // Cloudinary public_id for deletion
+  bio           String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  workspaceMemberships WorkspaceMember[]
+  ownedGoals           Goal[]           @relation("GoalOwner")
+  assignedActionItems  ActionItem[]     @relation("ActionItemAssignee")
+  announcements        Announcement[]
+  comments             Comment[]
+  reactions            Reaction[]
+  notifications        Notification[]   @relation("NotificationRecipient")
+  sentNotifications    Notification[]   @relation("NotificationSender")
+  activityUpdates      ActivityUpdate[]
+  auditLogs            AuditLog[]
+
+  @@map("users")
+}
+
+/// A workspace — the top-level organisational unit
+model Workspace {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  accentColor String   @default("#6366f1") // hex color
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members       WorkspaceMember[]
+  goals         Goal[]
+  announcements Announcement[]
+  actionItems   ActionItem[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+
+  @@map("workspaces")
+}
+
+/// Junction table: User ↔ Workspace with role
+model WorkspaceMember {
+  id          String        @id @default(uuid())
+  userId      String
+  workspaceId String
+  role        WorkspaceRole @default(MEMBER)
+  joinedAt    DateTime      @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@map("workspace_members")
+}
+
+/// A workspace-level goal with optional due date and status
+model Goal {
+  id          String     @id @default(uuid())
+  workspaceId String
+  ownerId     String
+  title       String
+  description String?
+  status      GoalStatus @default(NOT_STARTED)
+  dueDate     DateTime?
+  progress    Int        @default(0) // 0-100 percent, auto-computed from milestones
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  owner          User           @relation("GoalOwner", fields: [ownerId], references: [id])
+  milestones     Milestone[]
+  actionItems    ActionItem[]
+  activityFeed   ActivityUpdate[]
+
+  @@map("goals")
+}
+
+/// A milestone nested under a goal
+model Milestone {
+  id          String   @id @default(uuid())
+  goalId      String
+  title       String
+  progress    Int      @default(0) // 0-100 percent
+  completed   Boolean  @default(false)
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@map("milestones")
+}
+
+/// An activity/progress update posted on a goal's feed
+model ActivityUpdate {
+  id        String   @id @default(uuid())
+  goalId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  goal   Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
+
+  @@map("activity_updates")
+}
+
+/// A workspace-wide announcement posted by an admin
+model Announcement {
+  id          String   @id @default(uuid())
+  workspaceId String
+  authorId    String
+  title       String
+  content     String   // Rich text (HTML from Tiptap/simple rich text)
+  isPinned    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  author    User       @relation(fields: [authorId], references: [id])
+  reactions Reaction[]
+  comments  Comment[]
+
+  @@map("announcements")
+}
+
+/// An emoji reaction on an announcement
+model Reaction {
+  id             String   @id @default(uuid())
+  announcementId String
+  userId         String
+  emoji          String
+  createdAt      DateTime @default(now())
+
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, userId, emoji])
+  @@map("reactions")
+}
+
+/// A comment on an announcement (supports @mentions)
+model Comment {
+  id             String   @id @default(uuid())
+  announcementId String
+  authorId       String
+  content        String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  author       User         @relation(fields: [authorId], references: [id])
+
+  @@map("comments")
+}
+
+/// A task or action item, optionally linked to a goal
+model ActionItem {
+  id          String             @id @default(uuid())
+  workspaceId String
+  goalId      String?
+  assigneeId  String?
+  title       String
+  description String?
+  status      ActionItemStatus   @default(TODO)
+  priority    ActionItemPriority @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  goal      Goal?     @relation(fields: [goalId], references: [id], onDelete: SetNull)
+  assignee  User?     @relation("ActionItemAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  @@map("action_items")
+}
+
+/// In-app notification for @mentions, invites, etc.
+model Notification {
+  id          String           @id @default(uuid())
+  recipientId String
+  senderId    String?
+  workspaceId String?
+  type        NotificationType
+  title       String
+  body        String
+  link        String?          // Frontend route to navigate to
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  recipient User       @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  sender    User?      @relation("NotificationSender", fields: [senderId], references: [id], onDelete: SetNull)
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+/// Immutable audit log — Advanced Feature #1
+model AuditLog {
+  id          String   @id @default(uuid())
+  workspaceId String
+  actorId     String
+  action      String   // AUDIT_ACTION enum value as string (kept flexible)
+  entityType  String   // e.g. "Goal", "ActionItem", "Announcement"
+  entityId    String?
+  entityTitle String?
+  metadata    Json?    // Any extra context (old/new values, etc.)
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  actor     User      @relation(fields: [actorId], references: [id])
+
+  @@index([workspaceId, createdAt])
+  @@index([actorId])
+  @@map("audit_logs")
+}
