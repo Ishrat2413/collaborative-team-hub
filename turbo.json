@@ -19,34 +19,12 @@
       ],
       "outputs": [
         ".next/**",
-        "!.next/cache/**",
         "dist/**"
       ]
     },
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "start": {
-      "cache": false,
-      "dependsOn": [
-        "build"
-      ]
-    },
-    "lint": {
-      "outputs": []
-    },
-    "clean": {
-      "cache": false
-    },
-    "db:migrate": {
-      "cache": false
-    },
-    "db:seed": {
-      "cache": false,
-      "dependsOn": [
-        "db:migrate"
-      ]
     }
   }
 }

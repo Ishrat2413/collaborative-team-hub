@@ -11,6 +11,8 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start",
+    "backend:build": "turbo run build --filter=@team-hub/backend",
+    "frontend:build": "turbo run build --filter=@team-hub/frontend",
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf node_modules",
     "db:migrate": "turbo run db:migrate",
