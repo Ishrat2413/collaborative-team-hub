@@ -167,47 +167,47 @@ function AnnouncementCard({ announcement, workspaceId, isAdmin }) {
   const { togglePin } = useAnnouncementStore();
 
   return (
-    <div className={`card animate-fade-in ${announcement.isPinned ? 'ring-1 ring-[var(--accent-color)]' : ''}`}>
-      {/* Header */}
-      <div className="flex items-start gap-3">
-        <Avatar user={announcement.author} size="sm" />
+    <div className={`card-elevated animate-fade-in transition-all duration-300 ${announcement.isPinned ? 'ring-2 ring-indigo-500 ring-opacity-50' : ''}`}>
+      {/* Enhanced UI - Header with better layout and spacing */}
+      <div className="flex items-start gap-3 mb-3">
+        <Avatar user={announcement.author} size="md" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-semibold text-slate-900 dark:text-white">{announcement.author?.name}</span>
-            <span className="text-xs text-slate-400">{timeAgo(announcement.createdAt)}</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{timeAgo(announcement.createdAt)}</span>
             {announcement.isPinned && (
               <Badge variant="purple">📌 Pinned</Badge>
             )}
           </div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-white mt-1">{announcement.title}</h3>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1.5">{announcement.title}</h3>
         </div>
         {isAdmin && (
           <button
             onClick={() => togglePin(announcement.id, workspaceId)}
-            className="p-1.5 text-slate-400 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+            className="p-2 text-slate-400 hover:text-indigo-600 transition-all rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
             title={announcement.isPinned ? 'Unpin' : 'Pin to top'}
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5" fill={announcement.isPinned ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
           </button>
         )}
       </div>
 
-      {/* Rich text content */}
+      {/* Enhanced UI - Rich text content with better styling */}
       <div
-        className="rich-content text-sm text-slate-700 dark:text-slate-300 mt-3 leading-relaxed"
+        className="rich-content text-base text-slate-700 dark:text-slate-300 my-4 leading-relaxed prose prose-sm dark:prose-invert max-w-none"
         dangerouslySetInnerHTML={{ __html: announcement.content }}
       />
 
-      {/* Reactions */}
+      {/* Enhanced UI - Reactions */}
       <ReactionBar
         announcementId={announcement.id}
         reactions={announcement.reactions || []}
         workspaceId={workspaceId}
       />
 
-      {/* Comments */}
+      {/* Enhanced UI - Comments */}
       <CommentSection
         announcementId={announcement.id}
         workspaceId={workspaceId}
@@ -283,19 +283,19 @@ export default function AnnouncementsPage() {
   }, [activeWorkspace?.id]);
 
   return (
-    <div className="max-w-3xl space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="max-w-4xl space-y-7">
+      {/* Enhanced UI - Better header section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Announcements</h1>
-          <p className="text-sm text-slate-500">{announcements.length} post{announcements.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Announcements</h1>
+          <p className="text-base text-slate-600 dark:text-slate-400 mt-1">{announcements.length} post{announcements.length !== 1 ? 's' : ''} in this workspace</p>
         </div>
         {isAdmin && (
-          <button className="btn-primary" onClick={() => setShowCreate(true)}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <button className="btn-primary gap-2 w-full sm:w-auto justify-center" onClick={() => setShowCreate(true)}>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            New post
+            New Post
           </button>
         )}
       </div>

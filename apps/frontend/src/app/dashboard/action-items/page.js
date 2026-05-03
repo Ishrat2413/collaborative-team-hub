@@ -130,23 +130,35 @@ function CreateItemModal({ open, onClose, workspaceId, members, goals }) {
 
 function ItemCard({ item, onStatusChange }) {
   const overdue = isOverdue(item.dueDate) && item.status !== 'DONE';
-  const priorityColors = { LOW: 'bg-slate-300', MEDIUM: 'bg-blue-400', HIGH: 'bg-orange-400', URGENT: 'bg-red-500' };
+  const priorityColors = { 
+    LOW: 'bg-slate-300 text-slate-700 dark:bg-slate-600', 
+    MEDIUM: 'bg-blue-200 text-blue-700 dark:bg-blue-900', 
+    HIGH: 'bg-orange-200 text-orange-700 dark:bg-orange-900', 
+    URGENT: 'bg-red-200 text-red-700 dark:bg-red-900' 
+  };
 
+  /* Enhanced UI - Premium action item card with better visual hierarchy */
   return (
-    <div className="card cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow">
-      <div className="flex items-start gap-2 mb-2">
-        <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${priorityColors[item.priority]}`} />
-        <p className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-snug">{item.title}</p>
+    <div className="card group cursor-grab active:cursor-grabbing hover:shadow-md transition-all duration-200">
+      <div className="flex items-start gap-3 mb-3">
+        <span className={`mt-1 h-3 w-3 shrink-0 rounded-full ${priorityColors[item.priority]}`} title={item.priority} />
+        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug">{item.title}</p>
       </div>
+
+      {/* Enhanced UI - Better goal link styling */}
       {item.goal && (
-        <p className="text-xs text-slate-400 mb-2 ml-4">↳ {item.goal.title}</p>
+        <div className="mb-3 p-2 bg-slate-50 dark:bg-slate-900/30 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
+          <p className="text-xs font-medium text-slate-600 dark:text-slate-400">🎯 {item.goal.title}</p>
+        </div>
       )}
-      <div className="flex items-center justify-between mt-2 ml-4">
-        <div className="flex items-center gap-1.5">
+
+      {/* Enhanced UI - Better footer with improved spacing and styling */}
+      <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+        <div className="flex items-center gap-2">
           {item.assignee && <Avatar user={item.assignee} size="xs" />}
           {item.dueDate && (
-            <span className={`text-xs ${overdue ? 'text-red-500 font-medium' : 'text-slate-400'}`}>
-              {overdue ? '⚠ ' : ''}{formatDate(item.dueDate, 'MMM d')}
+            <span className={`text-xs font-medium ${overdue ? 'text-red-500 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
+              {overdue ? '⚠️' : '📅'} {formatDate(item.dueDate, 'MMM d')}
             </span>
           )}
         </div>

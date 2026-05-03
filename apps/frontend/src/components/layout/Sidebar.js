@@ -88,36 +88,40 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        'flex h-full flex-col border-r border-slate-200 bg-white transition-all duration-300 dark:border-slate-700 dark:bg-slate-800',
+        'flex h-full flex-col border-r border-slate-200/60 bg-white/95 backdrop-blur-sm transition-all duration-300 dark:border-slate-700/60 dark:bg-slate-800/95 dark:backdrop-blur-sm',
         sidebarCollapsed ? 'w-16' : 'w-60'
       )}
     >
-      {/* Workspace Switcher */}
-      <div className="border-b border-slate-200 dark:border-slate-700">
+      {/* Enhanced UI - Workspace Switcher section */}
+      <div className="border-b border-slate-200/50 p-2 dark:border-slate-700/50">
         <WorkspaceSwitcher collapsed={sidebarCollapsed} />
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+      {/* Enhanced UI - Navigation with improved spacing and styling */}
+      <nav className="flex-1 overflow-y-auto space-y-0.5 px-2.5 py-3">
         {NAV_ITEMS.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              'sidebar-link',
+              'sidebar-link group relative',
               pathname === item.href && 'active'
             )}
             title={sidebarCollapsed ? item.label : undefined}
           >
-            <span className="shrink-0">{item.icon}</span>
-            {!sidebarCollapsed && <span>{item.label}</span>}
+            {/* Enhanced UI - Active indicator bar */}
+            {pathname === item.href && (
+              <div className="absolute left-0 top-0 bottom-0 w-1 rounded-r-lg bg-gradient-to-b from-indigo-500 to-indigo-600" />
+            )}
+            <span className="shrink-0 transition-transform group-hover:scale-110">{item.icon}</span>
+            {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
           </Link>
         ))}
       </nav>
 
-      {/* Online Users */}
+      {/* Enhanced UI - Online Users section with better styling */}
       {!sidebarCollapsed && (
-        <div className="border-t border-slate-200 p-3 dark:border-slate-700">
+        <div className="border-t border-slate-200/50 bg-slate-50/50 p-3 dark:border-slate-700/50 dark:bg-slate-900/30">
           <OnlineUsers />
         </div>
       )}

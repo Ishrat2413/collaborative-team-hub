@@ -43,7 +43,7 @@ export default function RegisterPage() {
 
       <div className='w-full max-w-md'>
         <div className='text-center mb-8'>
-          <div className='inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 mb-4'>
+          <div className='inline-flex items-center justify-center w-12 h-12 rounded-xl bg-green-600 mb-4'>
             <svg
               className='w-7 h-7 text-white'
               fill='none'
@@ -111,28 +111,17 @@ export default function RegisterPage() {
             </div>
             <button
               type='submit'
-              className='btn-primary w-full'
+              className='btn bg-green-400 p-1 rounded-lg w-full'
               disabled={isLoading}>
               {isLoading ? "Creating account..." : "Create account"}
             </button>
           </form>
 
-          {/* Demo credentials */}
-          <div className='mt-6 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-xs text-blue-700 dark:text-blue-300'>
-            <p className='font-semibold mb-2'>🎯 Try Demo Account First</p>
-            <p className='mb-1'>
-              Email: <span className='font-mono'>ishrat@demo.com</span>
-            </p>
-            <p>
-              Password: <span className='font-mono'>Password1</span>
-            </p>
-          </div>
-
           <p className='text-center text-sm text-slate-500 dark:text-slate-400 mt-6'>
             Already have an account?{" "}
             <Link
               href='/auth/login'
-              className='font-medium text-indigo-600 hover:underline dark:text-indigo-400'>
+              className='font-medium text-green-600 hover:underline dark:text-green-400'>
               Sign in
             </Link>
           </p>

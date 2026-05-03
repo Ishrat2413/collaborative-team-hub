@@ -54,9 +54,13 @@ export default function DashboardLayout({ children }) {
   if (!isHydrated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin" />
-          <p className="text-sm text-slate-400">Loading...</p>
+        <div className="flex flex-col items-center gap-4">
+          {/* Enhanced UI - Better loading animation */}
+          <div className="relative w-12 h-12">
+            <div className="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-700" />
+            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-indigo-600 animate-spin" />
+          </div>
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Loading your workspace...</p>
         </div>
       </div>
     );

@@ -18,6 +18,29 @@ export default function LoginPage() {
   const { fetchWorkspaces } = useWorkspaceStore();
   const [form, setForm] = useState({ email: "", password: "" });
 
+  const demoCredentials = [
+    {
+      email: "ishrat@demo.com",
+      password: "Password1",
+      role: "Admin — Product Team",
+    },
+    {
+      email: "sam@demo.com",
+      password: "Password1",
+      role: "Admin — Product Team",
+    },
+    {
+      email: "jordan@demo.com",
+      password: "Password1",
+      role: "Member",
+    },
+    {
+      email: "morgan@demo.com",
+      password: "Password1",
+      role: "Admin — Marketing Hub",
+    },
+  ];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await login(form);
@@ -39,7 +62,7 @@ export default function LoginPage() {
       <div className='w-full max-w-md'>
         {/* Logo */}
         <div className='text-center mb-8'>
-          <div className='inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 mb-4'>
+          <div className='inline-flex items-center justify-center w-12 h-12 rounded-xl bg-green-600 mb-4'>
             <svg
               className='w-7 h-7 text-white'
               fill='none'
@@ -92,28 +115,30 @@ export default function LoginPage() {
 
             <button
               type='submit'
-              className='btn-primary w-full'
+              className='btn bg-green-400 p-1 rounded-lg w-full'
               disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </button>
           </form>
 
           {/* Demo credentials */}
-          <div className='mt-6 p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-xs text-indigo-700 dark:text-indigo-300'>
-            <p className='font-semibold mb-1'>🎯 Demo credentials</p>
-            <p>
-              Email: <span className='font-mono'>ishrat@demo.com</span>
-            </p>
-            <p>
-              Password: <span className='font-mono'>Password1</span>
-            </p>
+          <div className='mt-6 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 text-xs text-green-700 dark:text-green-300'>
+            <p className='font-semibold mb-1'>Demo credentials</p>
+            {demoCredentials.map((cred) => (
+              <div key={cred.email} className='mb-1'>
+                <span className='font-medium'>{cred.role}:</span>{" "}
+                <span>
+                  {cred.email} / {cred.password}
+                </span>
+              </div>
+            ))}
           </div>
 
           <p className='text-center text-sm text-slate-500 dark:text-slate-400 mt-6'>
             Don&apos;t have an account?{" "}
             <Link
               href='/auth/register'
-              className='font-medium text-indigo-600 hover:underline dark:text-indigo-400'>
+              className='font-medium text-green-600 hover:underline dark:text-green-400'>
               Sign up
             </Link>
           </p>

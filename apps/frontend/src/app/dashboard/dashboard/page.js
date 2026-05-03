@@ -19,18 +19,26 @@ import toast from 'react-hot-toast';
 
 function StatCard({ label, value, sub, icon, color = 'indigo' }) {
   const colors = {
-    indigo: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400',
-    emerald: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
-    amber: 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
-    red: 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400',
+    indigo: 'bg-gradient-to-br from-indigo-50 to-indigo-100/50 text-indigo-600 dark:from-indigo-900/30 dark:to-indigo-800/20 dark:text-indigo-400',
+    emerald: 'bg-gradient-to-br from-emerald-50 to-emerald-100/50 text-emerald-600 dark:from-emerald-900/30 dark:to-emerald-800/20 dark:text-emerald-400',
+    amber: 'bg-gradient-to-br from-amber-50 to-amber-100/50 text-amber-600 dark:from-amber-900/30 dark:to-amber-800/20 dark:text-amber-400',
+    red: 'bg-gradient-to-br from-red-50 to-red-100/50 text-red-600 dark:from-red-900/30 dark:to-red-800/20 dark:text-red-400',
   };
+  /* Enhanced UI - Improved stat card with gradient background and better shadow */
   return (
-    <div className="card flex items-start gap-4">
-      <div className={`rounded-xl p-3 ${colors[color]}`}>{icon}</div>
-      <div>
-        <p className="text-2xl font-bold text-slate-900 dark:text-white">{value}</p>
-        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</p>
-        {sub && <p className="text-xs text-slate-500 mt-0.5">{sub}</p>}
+    <div className="card-elevated relative overflow-hidden group">
+      {/* Enhanced UI - Gradient overlay for premium look */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 bg-gradient-to-br from-transparent via-white to-transparent pointer-events-none" />
+      
+      <div className="flex items-start gap-4 relative">
+        <div className={`rounded-xl p-3 ${colors[color]} transition-transform group-hover:scale-110 duration-200`}>
+          {icon}
+        </div>
+        <div className="flex-1">
+          <p className="text-3xl font-bold text-slate-900 dark:text-white">{value}</p>
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</p>
+          {sub && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{sub}</p>}
+        </div>
       </div>
     </div>
   );
@@ -62,22 +70,23 @@ function ExportButton({ workspaceId }) {
     }
   };
 
+  /* Enhanced UI - Better button group styling */
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
       <select
-        className="input-base w-auto text-xs"
+        className="input-base w-auto text-sm px-4 py-2.5"
         value={type}
         onChange={(e) => setType(e.target.value)}
       >
-        <option value="goals">Goals</option>
-        <option value="action-items">Action Items</option>
-        <option value="members">Members</option>
+        <option value="goals">Export Goals</option>
+        <option value="action-items">Export Action Items</option>
+        <option value="members">Export Members</option>
       </select>
-      <button onClick={handleExport} disabled={loading} className="btn-secondary text-xs gap-1.5">
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <button onClick={handleExport} disabled={loading} className="btn-primary gap-2">
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
-        {loading ? 'Exporting...' : 'Export CSV'}
+        {loading ? 'Exporting...' : 'Export'}
       </button>
     </div>
   );
@@ -124,18 +133,21 @@ export default function DashboardPage() {
   }));
 
   return (
-    <div className="space-y-6 max-w-7xl">
-      {/* Header */}
+    <div className="space-y-8 max-w-7xl">
+      {/* Enhanced UI - Header section with better typography and spacing */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
+        <p className="text-base text-slate-600 dark:text-slate-400">{activeWorkspace.name} · Workspace Overview</p>
+      </div>
+
+      {/* Enhanced UI - Controls section with better layout */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
-          <p className="text-sm text-slate-500 mt-0.5">{activeWorkspace.name} · Overview</p>
-        </div>
+        <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">Key Metrics</p>
         <ExportButton workspaceId={activeWorkspace.id} />
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Enhanced UI - Stat cards with improved grid and spacing */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           label="Total Goals"
           value={stats.totalGoals}
