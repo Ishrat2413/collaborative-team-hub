@@ -222,7 +222,7 @@ npm run dev
 
 | Email             | Password    | Role                  |
 | ----------------- | ----------- | --------------------- |
-| `alex@demo.com`   | `Password1` | Admin (Product Team)  |
+| `ishrat@demo.com` | `Password1` | Admin (Product Team)  |
 | `sam@demo.com`    | `Password1` | Admin (Product Team)  |
 | `jordan@demo.com` | `Password1` | Member                |
 | `morgan@demo.com` | `Password1` | Admin (Marketing Hub) |
@@ -301,7 +301,7 @@ Railway automatically injects `DATABASE_URL` into your services.
 
 - **Live Web URL (Railway):** `https://your-web.up.railway.app`
 - **Live API URL (Railway):** `https://your-api.up.railway.app`
-- **Seeded demo account email:** `alex@demo.com`
+- **Seeded demo account email:** `ishrat@demo.com`
 - **Seeded demo account password:** `Password1`
 - **Public GitHub repo URL:** `https://github.com/your-username/collaborative-team-hub`
 - **Video walkthrough URL (3-5 min):** `<add link>`

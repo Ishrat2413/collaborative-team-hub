@@ -65,7 +65,7 @@ export default function LoginPage() {
                 type='email'
                 required
                 className='input-base'
-                placeholder='alex@demo.com'
+                placeholder='ishrat@demo.com'
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
@@ -96,7 +96,7 @@ export default function LoginPage() {
           <div className='mt-6 p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-xs text-indigo-700 dark:text-indigo-300'>
             <p className='font-semibold mb-1'>🎯 Demo credentials</p>
             <p>
-              Email: <span className='font-mono'>alex@demo.com</span>
+              Email: <span className='font-mono'>ishrat@demo.com</span>
             </p>
             <p>
               Password: <span className='font-mono'>Password1</span>
