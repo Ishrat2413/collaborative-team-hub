@@ -1,0 +1,99 @@
+// Shared constants (inlined from packages/shared for Railway deployment)
+
+export const WORKSPACE_ROLES = {
+  ADMIN: "ADMIN",
+  MEMBER: "MEMBER",
+};
+
+export const GOAL_STATUS = {
+  NOT_STARTED: "NOT_STARTED",
+  IN_PROGRESS: "IN_PROGRESS",
+  COMPLETED: "COMPLETED",
+  AT_RISK: "AT_RISK",
+  CANCELLED: "CANCELLED",
+};
+
+export const ACTION_ITEM_STATUS = {
+  TODO: "TODO",
+  IN_PROGRESS: "IN_PROGRESS",
+  IN_REVIEW: "IN_REVIEW",
+  DONE: "DONE",
+};
+
+export const ACTION_ITEM_PRIORITY = {
+  LOW: "LOW",
+  MEDIUM: "MEDIUM",
+  HIGH: "HIGH",
+  URGENT: "URGENT",
+};
+
+export const AUDIT_ACTION = {
+  WORKSPACE_CREATED: "WORKSPACE_CREATED",
+  WORKSPACE_UPDATED: "WORKSPACE_UPDATED",
+  MEMBER_INVITED: "MEMBER_INVITED",
+  MEMBER_REMOVED: "MEMBER_REMOVED",
+  MEMBER_ROLE_CHANGED: "MEMBER_ROLE_CHANGED",
+  GOAL_CREATED: "GOAL_CREATED",
+  GOAL_UPDATED: "GOAL_UPDATED",
+  GOAL_STATUS_CHANGED: "GOAL_STATUS_CHANGED",
+  GOAL_DELETED: "GOAL_DELETED",
+  MILESTONE_CREATED: "MILESTONE_CREATED",
+  MILESTONE_UPDATED: "MILESTONE_UPDATED",
+  MILESTONE_DELETED: "MILESTONE_DELETED",
+  ANNOUNCEMENT_CREATED: "ANNOUNCEMENT_CREATED",
+  ANNOUNCEMENT_PINNED: "ANNOUNCEMENT_PINNED",
+  ANNOUNCEMENT_UNPINNED: "ANNOUNCEMENT_UNPINNED",
+  ANNOUNCEMENT_DELETED: "ANNOUNCEMENT_DELETED",
+  ACTION_ITEM_CREATED: "ACTION_ITEM_CREATED",
+  ACTION_ITEM_STATUS_CHANGED: "ACTION_ITEM_STATUS_CHANGED",
+  ACTION_ITEM_ASSIGNED: "ACTION_ITEM_ASSIGNED",
+  ACTION_ITEM_DELETED: "ACTION_ITEM_DELETED",
+};
+
+export const SOCKET_EVENTS = {
+  JOIN_WORKSPACE: "join_workspace",
+  LEAVE_WORKSPACE: "leave_workspace",
+  USER_ONLINE: "user_online",
+  USER_OFFLINE: "user_offline",
+  ONLINE_USERS: "online_users",
+  GOAL_CREATED: "goal_created",
+  GOAL_UPDATED: "goal_updated",
+  GOAL_STATUS_CHANGED: "goal_status_changed",
+  ANNOUNCEMENT_CREATED: "announcement_created",
+  ANNOUNCEMENT_REACTION: "announcement_reaction",
+  ANNOUNCEMENT_PINNED: "announcement_pinned",
+  ANNOUNCEMENT_COMMENT: "announcement_comment",
+  ACTION_ITEM_CREATED: "action_item_created",
+  ACTION_ITEM_UPDATED: "action_item_updated",
+  ACTION_ITEM_STATUS_CHANGED: "action_item_status_changed",
+  NEW_NOTIFICATION: "new_notification",
+  ACTIVITY_UPDATE: "activity_update",
+};
+
+export const NOTIFICATION_TYPE = {
+  MENTION: "MENTION",
+  WORKSPACE_INVITE: "WORKSPACE_INVITE",
+  GOAL_UPDATE: "GOAL_UPDATE",
+  ACTION_ITEM_ASSIGNED: "ACTION_ITEM_ASSIGNED",
+  ANNOUNCEMENT: "ANNOUNCEMENT",
+};
+
+export const AVAILABLE_REACTIONS = [
+  "👍",
+  "❤️",
+  "🎉",
+  "🚀",
+  "👀",
+  "😮",
+  "🔥",
+  "✅",
+];
+
+export const DEFAULT_PAGE_SIZE = 20;
+export const MAX_PAGE_SIZE = 100;
+
+export const extractMentions = (text) => {
+  if (!text) return [];
+  const matches = text.match(/@([a-zA-Z0-9_]+(?:\s[a-zA-Z0-9_]+)*)/g) || [];
+  return matches.map((m) => m.slice(1));
+};

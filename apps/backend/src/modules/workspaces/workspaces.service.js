@@ -2,9 +2,9 @@
  * @fileoverview Workspaces service — workspace CRUD, member management.
  */
 
-import prisma from '../../config/db.js';
-import { ApiError } from '../../utils/apiError.js';
-import { WORKSPACE_ROLES } from '@team-hub/shared';
+import prisma from "../../config/db.js";
+import { ApiError } from "../../utils/apiError.js";
+import { WORKSPACE_ROLES } from "../../lib/shared.js";
 
 /**
  * Creates a new workspace and makes the creator an admin.
@@ -12,17 +12,28 @@ import { WORKSPACE_ROLES } from '@team-hub/shared';
  * @param {Object} data - {name, description, accentColor}
  * @returns {Promise<Object>} Created workspace with member count
  */
-export const createWorkspace = async (userId, { name, description, accentColor }) => {
+export const createWorkspace = async (
+  userId,
+  { name, description, accentColor },
+) => {
   return prisma.workspace.create({
     data: {
       name,
       description,
-      accentColor: accentColor || '#6366f1',
+      accentColor: accentColor || "#6366f1",
       members: {
         create: { userId, role: WORKSPACE_ROLES.ADMIN },
       },
     },
-    include: { members: { include: { user: { select: { id: true, name: true, email: true, avatarUrl: true } } } } },
+    include: {
+      members: {
+        include: {
+          user: {
+            select: { id: true, name: true, email: true, avatarUrl: true },
+          },
+        },
+      },
+    },
   });
 };
 
@@ -41,7 +52,7 @@ export const getUserWorkspaces = async (userId) => {
         },
       },
     },
-    orderBy: { joinedAt: 'asc' },
+    orderBy: { joinedAt: "asc" },
   });
 
   return memberships.map((m) => ({
@@ -60,14 +71,18 @@ export const getWorkspace = async (workspaceId, userId) => {
   const membership = await prisma.workspaceMember.findUnique({
     where: { userId_workspaceId: { userId, workspaceId } },
   });
-  if (!membership) throw new ApiError(403, 'Not a member of this workspace.');
+  if (!membership) throw new ApiError(403, "Not a member of this workspace.");
 
   return prisma.workspace.findUnique({
     where: { id: workspaceId },
     include: {
       members: {
-        include: { user: { select: { id: true, name: true, email: true, avatarUrl: true } } },
-        orderBy: { joinedAt: 'asc' },
+        include: {
+          user: {
+            select: { id: true, name: true, email: true, avatarUrl: true },
+          },
+        },
+        orderBy: { joinedAt: "asc" },
       },
       _count: { select: { goals: true, actionItems: true } },
     },
@@ -94,18 +109,25 @@ export const updateWorkspace = async (workspaceId, data) => {
  * @param {string} role - WORKSPACE_ROLES value
  * @returns {Promise<Object>} New membership record
  */
-export const inviteMember = async (workspaceId, email, role = WORKSPACE_ROLES.MEMBER) => {
+export const inviteMember = async (
+  workspaceId,
+  email,
+  role = WORKSPACE_ROLES.MEMBER,
+) => {
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) throw new ApiError(404, 'No user found with that email address.');
+  if (!user) throw new ApiError(404, "No user found with that email address.");
 
   const existing = await prisma.workspaceMember.findUnique({
     where: { userId_workspaceId: { userId: user.id, workspaceId } },
   });
-  if (existing) throw new ApiError(409, 'User is already a member of this workspace.');
+  if (existing)
+    throw new ApiError(409, "User is already a member of this workspace.");
 
   return prisma.workspaceMember.create({
     data: { userId: user.id, workspaceId, role },
-    include: { user: { select: { id: true, name: true, email: true, avatarUrl: true } } },
+    include: {
+      user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+    },
   });
 };
 

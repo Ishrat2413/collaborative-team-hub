@@ -8,9 +8,9 @@
  * - Delivering in-app notifications
  */
 
-import { Server } from 'socket.io';
-import jwt from 'jsonwebtoken';
-import { SOCKET_EVENTS } from '@team-hub/shared';
+import { Server } from "socket.io";
+import jwt from "jsonwebtoken";
+import { SOCKET_EVENTS } from "../lib/shared.js";
 
 /** @type {Server} Singleton Socket.io server instance */
 let io;
@@ -29,9 +29,9 @@ const onlineUsers = new Map();
 export const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:3000',
+      origin: process.env.CLIENT_URL || "http://localhost:3000",
       credentials: true,
-      methods: ['GET', 'POST'],
+      methods: ["GET", "POST"],
     },
     pingTimeout: 60000,
     pingInterval: 25000,
@@ -43,11 +43,10 @@ export const initSocket = (httpServer) => {
     try {
       // Token can come from query param or cookie (for browser clients)
       const token =
-        socket.handshake.auth?.token ||
-        socket.handshake.query?.token;
+        socket.handshake.auth?.token || socket.handshake.query?.token;
 
       if (!token) {
-        return next(new Error('Authentication required'));
+        return next(new Error("Authentication required"));
       }
 
       const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
@@ -56,13 +55,13 @@ export const initSocket = (httpServer) => {
       socket.userAvatar = decoded.avatarUrl;
       next();
     } catch {
-      next(new Error('Invalid token'));
+      next(new Error("Invalid token"));
     }
   });
 
   // ─── Connection Handler ────────────────────────────────────────────────────
 
-  io.on('connection', (socket) => {
+  io.on("connection", (socket) => {
     console.log(`🔌 Socket connected: ${socket.id} (user: ${socket.userId})`);
 
     // ── Join a workspace room ──────────────────────────────────────────────
@@ -82,7 +81,9 @@ export const initSocket = (httpServer) => {
       });
 
       // Broadcast updated online user list to the workspace
-      const usersInWorkspace = Array.from(onlineUsers.get(workspaceId).values());
+      const usersInWorkspace = Array.from(
+        onlineUsers.get(workspaceId).values(),
+      );
       io.to(workspaceId).emit(SOCKET_EVENTS.ONLINE_USERS, usersInWorkspace);
 
       console.log(`👥 User ${socket.userId} joined workspace ${workspaceId}`);
@@ -96,7 +97,7 @@ export const initSocket = (httpServer) => {
 
     // ── Disconnect ─────────────────────────────────────────────────────────
 
-    socket.on('disconnect', () => {
+    socket.on("disconnect", () => {
       console.log(`🔌 Socket disconnected: ${socket.id}`);
       if (socket.currentWorkspaceId) {
         handleLeaveWorkspace(socket, socket.currentWorkspaceId);
@@ -104,7 +105,7 @@ export const initSocket = (httpServer) => {
     });
   });
 
-  console.log('✅ Socket.io initialised');
+  console.log("✅ Socket.io initialised");
   return io;
 };
 
@@ -134,7 +135,8 @@ function handleLeaveWorkspace(socket, workspaceId) {
  * @returns {Server}
  */
 export const getIo = () => {
-  if (!io) throw new Error('Socket.io not initialised. Call initSocket() first.');
+  if (!io)
+    throw new Error("Socket.io not initialised. Call initSocket() first.");
   return io;
 };
 
@@ -165,4 +167,17 @@ export const emitToUser = (userId, event, data) => {
       }
     });
   }
+};
+
+/**
+ * Closes the Socket.io server instance and clears in-memory presence state.
+ * Safe to call during shutdown/restart.
+ */
+export const closeSocket = async () => {
+  if (io) {
+    await io.close();
+    io = undefined;
+  }
+
+  onlineUsers.clear();
 };

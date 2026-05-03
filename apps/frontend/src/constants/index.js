@@ -3,7 +3,7 @@
  * Re-exports shared constants and adds frontend-only values.
  */
 
-export * from '@team-hub/shared';
+export * from '../../../backend/src/lib/shared.js'; // Re-export shared constants
 
 /** @type {string} Local storage key for theme preference */
 export const THEME_STORAGE_KEY = 'team-hub-theme';

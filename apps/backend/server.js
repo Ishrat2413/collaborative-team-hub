@@ -9,31 +9,32 @@
  * - Global error handler
  */
 
-import 'dotenv/config';
-import express from 'express';
-import http from 'http';
-import cors from 'cors';
-import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
-import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
+import "dotenv/config";
+import express from "express";
+import http from "http";
+import cors from "cors";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
+import rateLimit from "express-rate-limit";
 
-import { initSocket } from './src/config/socket.js';
-import { errorHandler } from './src/middleware/errorHandler.js';
-import { ApiError } from './src/utils/apiError.js';
+import { initSocket } from "./src/config/socket.js";
+import { closeSocket } from "./src/config/socket.js";
+import { errorHandler } from "./src/middleware/errorHandler.js";
+import { ApiError } from "./src/utils/apiError.js";
 
 // ─── Route Imports ────────────────────────────────────────────────────────────
-import authRoutes from './src/modules/auth/auth.routes.js';
-import userRoutes from './src/modules/users/users.routes.js';
-import workspaceRoutes from './src/modules/workspaces/workspaces.routes.js';
-import goalRoutes from './src/modules/goals/goals.routes.js';
-import milestoneRoutes from './src/modules/milestones/milestones.routes.js';
-import announcementRoutes from './src/modules/announcements/announcements.routes.js';
-import actionItemRoutes from './src/modules/action-items/actionItems.routes.js';
-import commentRoutes from './src/modules/comments/comments.routes.js';
-import notificationRoutes from './src/modules/notifications/notifications.routes.js';
-import analyticsRoutes from './src/modules/analytics/analytics.routes.js';
-import auditRoutes from './src/modules/audit/audit.routes.js';
+import authRoutes from "./src/modules/auth/auth.routes.js";
+import userRoutes from "./src/modules/users/users.routes.js";
+import workspaceRoutes from "./src/modules/workspaces/workspaces.routes.js";
+import goalRoutes from "./src/modules/goals/goals.routes.js";
+import milestoneRoutes from "./src/modules/milestones/milestones.routes.js";
+import announcementRoutes from "./src/modules/announcements/announcements.routes.js";
+import actionItemRoutes from "./src/modules/action-items/actionItems.routes.js";
+import commentRoutes from "./src/modules/comments/comments.routes.js";
+import notificationRoutes from "./src/modules/notifications/notifications.routes.js";
+import analyticsRoutes from "./src/modules/analytics/analytics.routes.js";
+import auditRoutes from "./src/modules/audit/audit.routes.js";
 
 // ─── App Setup ────────────────────────────────────────────────────────────────
 
@@ -41,21 +42,78 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const listenWithRetry = async (attempt = 1, maxAttempts = 5) => {
+  try {
+    await new Promise((resolve, reject) => {
+      const onError = (error) => {
+        server.off("listening", onListening);
+        server.off("error", onError);
+        reject(error);
+      };
+
+      const onListening = () => {
+        server.off("error", onError);
+        resolve();
+      };
+
+      server.once("error", onError);
+      server.once("listening", onListening);
+      server.listen(PORT);
+    });
+  } catch (error) {
+    if (
+      error.code === "EADDRINUSE" &&
+      process.env.NODE_ENV !== "production" &&
+      attempt < maxAttempts
+    ) {
+      const waitMs = 500 * attempt;
+      console.warn(
+        `⚠️ Port ${PORT} is still busy, retrying in ${waitMs}ms (attempt ${attempt + 1}/${maxAttempts})...`,
+      );
+      await delay(waitMs);
+      return listenWithRetry(attempt + 1, maxAttempts);
+    }
+
+    throw error;
+  }
+};
+
+const shutdown = async (signal) => {
+  try {
+    console.log(`\n🛑 Received ${signal}, shutting down gracefully...`);
+    await closeSocket();
+    server.closeIdleConnections?.();
+    server.closeAllConnections?.();
+    await new Promise((resolve, reject) => {
+      server.close((error) => {
+        if (error) return reject(error);
+        resolve();
+      });
+    });
+    process.exit(0);
+  } catch (error) {
+    console.error("Graceful shutdown failed:", error);
+    process.exit(1);
+  }
+};
+
 // ─── Security Middleware ──────────────────────────────────────────────────────
 
 app.use(
   helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-  })
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
 );
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
     credentials: true, // Required for httpOnly cookies
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
 );
 
 // ─── General Rate Limiting ────────────────────────────────────────────────────
@@ -65,7 +123,10 @@ const limiter = rateLimit({
   max: 200,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: 'Too many requests, please try again later.' },
+  message: {
+    success: false,
+    message: "Too many requests, please try again later.",
+  },
 });
 
 const authLimiter = rateLimit({
@@ -73,42 +134,45 @@ const authLimiter = rateLimit({
   max: 20, // stricter limit for auth endpoints
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: 'Too many auth attempts, please try again later.' },
+  message: {
+    success: false,
+    message: "Too many auth attempts, please try again later.",
+  },
 });
 
 app.use(limiter);
 
 // ─── Body Parsing ─────────────────────────────────────────────────────────────
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
 // ─── Logging ─────────────────────────────────────────────────────────────────
 
-if (process.env.NODE_ENV !== 'test') {
-  app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+if (process.env.NODE_ENV !== "test") {
+  app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 }
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
 
-app.use('/api/v1/auth', authLimiter, authRoutes);
-app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/workspaces', workspaceRoutes);
-app.use('/api/v1/goals', goalRoutes);
-app.use('/api/v1/milestones', milestoneRoutes);
-app.use('/api/v1/announcements', announcementRoutes);
-app.use('/api/v1/action-items', actionItemRoutes);
-app.use('/api/v1/comments', commentRoutes);
-app.use('/api/v1/notifications', notificationRoutes);
-app.use('/api/v1/analytics', analyticsRoutes);
-app.use('/api/v1/audit', auditRoutes);
+app.use("/api/v1/auth", authLimiter, authRoutes);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/workspaces", workspaceRoutes);
+app.use("/api/v1/goals", goalRoutes);
+app.use("/api/v1/milestones", milestoneRoutes);
+app.use("/api/v1/announcements", announcementRoutes);
+app.use("/api/v1/action-items", actionItemRoutes);
+app.use("/api/v1/comments", commentRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/api/v1/audit", auditRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 
@@ -126,10 +190,26 @@ initSocket(server);
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 
-server.listen(PORT, () => {
-  console.log(`\n🚀 Server running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
-  console.log(`📡 Socket.io attached`);
-  console.log(`🔗 API: http://localhost:${PORT}/api/v1\n`);
+listenWithRetry()
+  .then(() => {
+    console.log(
+      `\n🚀 Server running on port ${PORT} [${process.env.NODE_ENV || "development"}]`,
+    );
+    console.log(`📡 Socket.io attached`);
+    console.log(`🔗 API: http://localhost:${PORT}/api/v1\n`);
+  })
+  .catch((error) => {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  });
+
+server.on("error", (error) => {
+  console.error("Server error:", error);
+  process.exit(1);
 });
+
+process.once("SIGINT", () => shutdown("SIGINT"));
+process.once("SIGTERM", () => shutdown("SIGTERM"));
+process.once("SIGUSR2", () => shutdown("SIGUSR2"));
 
 export default app;

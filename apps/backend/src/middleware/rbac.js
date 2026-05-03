@@ -6,10 +6,10 @@
  * The workspaceId must be available as req.params.workspaceId or req.body.workspaceId.
  */
 
-import prisma from '../config/db.js';
-import { ApiError } from '../utils/apiError.js';
-import { asyncHandler } from '../utils/asyncHandler.js';
-import { WORKSPACE_ROLES } from '@team-hub/shared';
+import prisma from "../config/db.js";
+import { ApiError } from "../utils/apiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { WORKSPACE_ROLES } from "../lib/shared.js";
 
 /**
  * Factory function that returns middleware requiring a specific workspace role.
@@ -24,12 +24,10 @@ import { WORKSPACE_ROLES } from '@team-hub/shared';
 export const requireWorkspaceRole = (allowedRoles) =>
   asyncHandler(async (req, res, next) => {
     const workspaceId =
-      req.params.workspaceId ||
-      req.body.workspaceId ||
-      req.query.workspaceId;
+      req.params.workspaceId || req.body.workspaceId || req.query.workspaceId;
 
     if (!workspaceId) {
-      throw new ApiError(400, 'workspaceId is required for this operation.');
+      throw new ApiError(400, "workspaceId is required for this operation.");
     }
 
     const membership = await prisma.workspaceMember.findUnique({
@@ -42,13 +40,13 @@ export const requireWorkspaceRole = (allowedRoles) =>
     });
 
     if (!membership) {
-      throw new ApiError(403, 'You are not a member of this workspace.');
+      throw new ApiError(403, "You are not a member of this workspace.");
     }
 
     if (!allowedRoles.includes(membership.role)) {
       throw new ApiError(
         403,
-        `This action requires one of the following roles: ${allowedRoles.join(', ')}.`
+        `This action requires one of the following roles: ${allowedRoles.join(", ")}.`,
       );
     }
 
@@ -70,4 +68,6 @@ export const requireWorkspaceMember = requireWorkspaceRole([
  * Middleware that verifies the user is a workspace admin.
  * @type {import('express').RequestHandler}
  */
-export const requireWorkspaceAdmin = requireWorkspaceRole([WORKSPACE_ROLES.ADMIN]);
+export const requireWorkspaceAdmin = requireWorkspaceRole([
+  WORKSPACE_ROLES.ADMIN,
+]);
