@@ -1,0 +1,20 @@
+{
+  "name": "@team-hub/shared",
+  "version": "1.0.0",
+  "description": "Shared constants, validators, and utilities for the Collaborative Team Hub monorepo",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./constants": "./src/constants.js",
+    "./validators": "./src/validators.js"
+  },
+  "scripts": {
+    "lint": "echo 'No linting configured for shared package'"
+  },
+  "keywords": [
+    "shared",
+    "monorepo",
+    "team-hub"
+  ]
+}
