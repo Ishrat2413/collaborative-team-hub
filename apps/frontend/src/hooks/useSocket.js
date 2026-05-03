@@ -5,17 +5,21 @@
  * and wires up all real-time event listeners. Cleans up on unmount.
  */
 
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { getSocket } from '../lib/socket';
-import { SOCKET_EVENTS } from '@team-hub/shared';
-import useAuthStore from '../stores/authStore';
-import useWorkspaceStore from '../stores/workspaceStore';
-import useGoalStore from '../stores/goalStore';
-import useActionItemStore from '../stores/actionItemStore';
-import { useAnnouncementStore, useNotificationStore, useUIStore } from '../stores/index';
-import toast from 'react-hot-toast';
+import { useEffect, useRef } from "react";
+import { getSocket } from "../lib/socket";
+import { SOCKET_EVENTS } from "../constants/index.js";
+import useAuthStore from "../stores/authStore";
+import useWorkspaceStore from "../stores/workspaceStore";
+import useGoalStore from "../stores/goalStore";
+import useActionItemStore from "../stores/actionItemStore";
+import {
+  useAnnouncementStore,
+  useNotificationStore,
+  useUIStore,
+} from "../stores/index";
+import toast from "react-hot-toast";
 
 /**
  * Manages the Socket.io lifecycle for the active workspace.
@@ -63,13 +67,17 @@ const useSocket = () => {
     socket.on(SOCKET_EVENTS.GOAL_UPDATED, onGoalUpdate);
     socket.on(SOCKET_EVENTS.GOAL_STATUS_CHANGED, (goal) => {
       onGoalUpdate(goal);
-      toast(`🎯 "${goal.title}" → ${goal.status.replace('_', ' ')}`, { duration: 2500 });
+      toast(`🎯 "${goal.title}" → ${goal.status.replace("_", " ")}`, {
+        duration: 2500,
+      });
     });
 
     socket.on(SOCKET_EVENTS.ANNOUNCEMENT_CREATED, (announcement) => {
       onNewAnnouncement(announcement);
       if (announcement.author?.id !== user.id) {
-        toast(`📢 New announcement: "${announcement.title}"`, { duration: 3000 });
+        toast(`📢 New announcement: "${announcement.title}"`, {
+          duration: 3000,
+        });
       }
     });
 

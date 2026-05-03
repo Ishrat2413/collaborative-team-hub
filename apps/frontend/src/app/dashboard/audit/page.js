@@ -10,7 +10,7 @@ import useWorkspaceStore from "../../../stores/workspaceStore";
 import api from "../../../lib/api";
 import { Spinner, EmptyState, Avatar } from "../../../components/ui/index";
 import { timeAgo, formatDate } from "../../../lib/utils";
-import { AUDIT_ACTION } from "@team-hub/shared";
+import { AUDIT_ACTION } from "../../../constants/index.js";
 import toast from "react-hot-toast";
 
 // ─── Action badge colors ──────────────────────────────────────────────────────
