@@ -8,13 +8,26 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
-      },
-    ];
+    // Only add the external API rewrite when NEXT_PUBLIC_API_URL is explicitly set
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (
+      apiUrl &&
+      (apiUrl.startsWith("/") ||
+        apiUrl.startsWith("http://") ||
+        apiUrl.startsWith("https://"))
+    ) {
+      return [
+        {
+          source: "/api/:path*",
+          destination: `${apiUrl.replace(/\/$/, "")}/api/:path*`,
+        },
+      ];
+    }
+
+    // No external API configured — do not create an invalid rewrite.
+    // Next will serve API routes locally or the hosting platform will handle routing.
+    return [];
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
