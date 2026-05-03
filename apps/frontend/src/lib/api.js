@@ -7,18 +7,19 @@
  * - Consistent base URL from environment variable
  */
 
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
 /**
  * Pre-configured Axios instance for all API requests.
  * @type {import('axios').AxiosInstance}
  */
 const api = axios.create({
-  baseURL: `${API_URL}/api/v1`,
+  baseURL: `${API_URL}`,
   withCredentials: true, // Required for httpOnly cookies
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
   timeout: 15000,
 });
 
@@ -44,7 +45,7 @@ api.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes('/auth/')
+      !originalRequest.url.includes("/auth/")
     ) {
       if (isRefreshing) {
         // Queue the request while refresh is in progress
@@ -60,17 +61,17 @@ api.interceptors.response.use(
 
       try {
         await axios.post(
-          `${API_URL}/api/v1/auth/refresh`,
+          `${API_URL}/auth/refresh`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
         processQueue(null);
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
         // Redirect to login on refresh failure
-        if (typeof window !== 'undefined') {
-          window.location.href = '/auth/login';
+        if (typeof window !== "undefined") {
+          window.location.href = "/auth/login";
         }
         return Promise.reject(refreshError);
       } finally {
@@ -79,7 +80,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
