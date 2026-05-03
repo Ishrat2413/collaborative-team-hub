@@ -5,9 +5,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "build": "echo 'No build step for backend'",
+    "dev": "node init && nodemon server.js",
+    "start": "node init && node server.js",
+    "build": "node init && echo 'No build step for backend'",
     "lint": "echo 'No lint configured'",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
