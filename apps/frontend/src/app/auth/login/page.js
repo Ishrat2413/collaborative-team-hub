@@ -10,6 +10,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import useAuthStore from "../../../stores/authStore";
 import useWorkspaceStore from "../../../stores/workspaceStore";
+import ThemeToggle from "../../../components/ui/ThemeToggle";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,6 +31,11 @@ export default function LoginPage() {
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4'>
+      {/* Theme toggle - top right */}
+      <div className='absolute top-6 right-6'>
+        <ThemeToggle />
+      </div>
+
       <div className='w-full max-w-md'>
         {/* Logo */}
         <div className='text-center mb-8'>

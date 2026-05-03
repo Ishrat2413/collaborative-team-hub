@@ -10,6 +10,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import useAuthStore from "../../../stores/authStore";
 import useWorkspaceStore from "../../../stores/workspaceStore";
+import ThemeToggle from "../../../components/ui/ThemeToggle";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -35,6 +36,11 @@ export default function RegisterPage() {
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4'>
+      {/* Theme toggle - top right */}
+      <div className='absolute top-6 right-6'>
+        <ThemeToggle />
+      </div>
+
       <div className='w-full max-w-md'>
         <div className='text-center mb-8'>
           <div className='inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 mb-4'>
@@ -110,6 +116,17 @@ export default function RegisterPage() {
               {isLoading ? "Creating account..." : "Create account"}
             </button>
           </form>
+
+          {/* Demo credentials */}
+          <div className='mt-6 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-xs text-blue-700 dark:text-blue-300'>
+            <p className='font-semibold mb-2'>🎯 Try Demo Account First</p>
+            <p className='mb-1'>
+              Email: <span className='font-mono'>ishrat@demo.com</span>
+            </p>
+            <p>
+              Password: <span className='font-mono'>Password1</span>
+            </p>
+          </div>
 
           <p className='text-center text-sm text-slate-500 dark:text-slate-400 mt-6'>
             Already have an account?{" "}
